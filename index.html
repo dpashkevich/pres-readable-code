@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>Writing Readable Code &mdash; by Dmitry Pashkevich</title>
+
+        <meta name="description" content="">
+        <meta name="author" content="Dmitry Pashkevich">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/white.css" id="theme">
+
+        <style type="text/less">
+            @font-face {
+                font-family: 'League Gothic';
+                src: url("lib/font/league_gothic-webfont.eot");
+                src: url("lib/font/league_gothic-webfont.eot?#iefix") format("embedded-opentype"),
+                     url("lib/font/league_gothic-webfont.woff") format("woff"),
+                     url("lib/font/league_gothic-webfont.ttf") format("truetype"),
+                     url("lib/font/league_gothic-webfont.svg#LeagueGothicRegular") format("svg");
+                font-weight: normal;
+                font-style: normal;
+            }
+
+            body {
+                background-color: #3D4752;
+                background-position: top right;
+                background-repeat: no-repeat;
+                background-size: 150px 150px;
+            }
+
+            .reveal {
+                color: #AFB7BF;
+            }
+
+            .reveal h1,
+            .reveal h2,
+            .reveal h3,
+            .reveal h4,
+            .reveal h5,
+            .reveal h6 {
+                font-family: "League Gothic", Impact, sans-serif;
+                font-weight: normal;
+                line-height: 0.9em;
+                letter-spacing: 0.02em;
+                text-transform: uppercase;
+                color: #fff;
+
+                .subheading {
+                    font-size: 0.6em;
+                    display: block;
+                }
+            }
+            .reveal h1 {
+                /*font-size: 3.77em;*/
+                font-size: 3em;
+            }
+            .reveal h2 {
+                font-size: 2.11em;
+            }
+            .reveal h3 {
+                font-size: 1.8em;
+            }
+            .reveal h4 {
+                font-size: 1.4em;
+            }
+            .reveal section img {
+                border: none;
+            }
+
+            .reveal .important {
+                color: orange;
+                font-family: "League Gothic", Impact, sans-serif;
+            }
+
+            .reveal strong {
+                color: #FF7A7A;
+            }
+
+            .reveal .bad {
+                color: #f06666;
+            }
+
+            .reveal .good {
+                color: #13aa13;
+            }
+
+            .reveal pre {
+                width: auto;
+                font-size: 0.5em;
+                line-height: 1.3em;
+            }
+            .reveal code {
+                background: #3F3F3F;
+            }
+            .reveal code.inline {
+                font-size: 0.9em;
+                padding: 0 0.3em;
+            }
+
+            .reveal .code-columns {
+                display: flex;
+                align-items: stretch;
+
+                & > pre {
+                    flex: 1;
+                    margin-left: 10px;
+                    display: flex;
+                    align-items: stretch;
+
+                    &:first-child {
+                        margin-left: 0;
+                    }
+
+                    & > code {
+                        flex: 1;
+                        max-height: none;
+                    }
+                }
+            }
+
+            .reveal blockquote {
+                text-align: left;
+                box-shadow: none;
+                border-left: solid 4px #ccc;
+                padding-left: 0.5em;
+            }
+
+            .reveal a {
+                color: #FFD966;
+            }
+            .reveal a:hover {
+                color: #fff2cc;
+            }
+
+            .lucid-orange,
+            .reveal .lucid-orange,
+            .reveal a.lucid-orange {
+            }
+
+            .reveal .lucid,
+            .reveal a.lucid {
+                color: #f78d1e;
+                font-weight: bold;
+            }
+            .reveal a.lucid:hover {
+                color: #8cbf3f;
+            }
+
+            .reveal .lucid-logo-container {
+                width: 100%;
+                padding: 1em 10%;
+                white-space: nowrap;
+                box-sizing: border-box;
+            }
+                .reveal .lucid-logo-container img {
+                    width: 45%;
+                }
+                .reveal .lucid-logo-container img,
+                .reveal .lucid-logo-container img:hover {
+                    border: none;
+                    background-color: transparent;
+                    box-shadow: none;
+                }
+
+            .reveal .column-container {
+                overflow: hidden;
+            }
+            .reveal .shrink-fit {
+                display: inline-block;
+            }
+            .reveal .column-left {
+                float: left;
+            }
+            .reveal .column-right {
+                float: right;
+            }
+
+            .reveal .remark {
+                font-style: italic;
+            }
+
+            /* dummy fragment class for custom effects */
+            .reveal .slides section .fragment-visible {
+                opacity: 1;
+            }
+
+            .angular-definition-note {
+                visibility: hidden;
+            }
+            .angular-definition-source {
+                text-align: right;
+                margin-top: 1em;
+            }
+            .angular-definition.current-fragment,
+            .angular-definition2.current-fragment {
+                .angular-definition-main,
+                .angular-definition-source {
+                    visibility: hidden;
+                }
+                .angular-definition-highlight {
+                    visibility: visible;
+                }
+            }
+            .angular-definition2.current-fragment {
+                .angular-definition-note {
+                    visibility: visible;
+                }
+            }
+        </style>
+
+        <script src="js/less.min.js"></script>
+
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+        <script>
+            if( window.location.search.match( /print-pdf/gi ) ) {
+                var link = document.createElement( 'link' );
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = 'css/print/pdf.css';
+                document.getElementsByTagName( 'head' )[0].appendChild( link );
+            }
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="reveal">
+
+            <!-- Any section element inside of this container is displayed as a slide -->
+            <div class="slides">
+                <section>
+                    <h1>Writing Readable Code</h1>
+                    <p>
+                        <a href="http://dpashk.com" target="_blank">Dmitry Pashkevich</a>
+                    </p>
+
+                    <p>
+                        <img src="img/dmitry-pashkevich-small.jpg" width="114" height="114" style="border-radius: 50%; box-shadow: none;">
+                    </p>
+
+                    <footer style="margin-top: 3em;">
+                        <img src="img/lucid-logo-light.svg" alt="Lucid Software Inc." style="max-width: 300px; box-shadow: none; background: transparent;">
+                    </footer>
+                </section>
+
+                <section>
+                    <h2>Who the heck wrote this?</h2>
+
+                    <ul>
+                        <li>Error-prone</li>
+                        <li>Intimidating, encourages bandaid fixes</li>
+                        <li>Takes time to understand, every single time</li>
+                        <li>Place where technical debt accumulates</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Goal</h2>
+
+                    <p><strong>Write code that minimizes the time it would take someone to understand it*</strong></p>
+                    <p class="fragment" style="margin-top: 2em;"><em>* That "someone" might be you 6 months later</em></p>
+                </section>
+
+                <section>
+                    <h2>Agenda</h2>
+
+                    <ul>
+                        <li>Formatting</li>
+                        <li>Commenting</li>
+                        <li>Naming things</li>
+                        <li>Using booleans</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Formatting</h2>
+                </section>
+
+                <section>
+                    <h3>Improve formatting</h3>
+
+                    <ul>
+                        <li>Have and follow a style guide</li>
+                        <li>Limit line length!</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <section>
+                        <h3>Line length</h2>
+
+                        <img src="img/DEC_VT100_terminal.jpg" alt="VT100 Terminal" title="Is the 80 character line limit still relevant?" style="max-width: 70%">
+                    </section>
+
+                    <section>
+                        <h4>We have giant screens now!</h2>
+
+                        <p class="fragment">Yes, but...</p>
+                        <ul>
+                            <li class="fragment">You could fit multiple files</li>
+                            <li class="fragment">You could be on a laptop screen</li>
+                            <li class="fragment">Your teammate could be on a laptop screen</li>
+                            <li class="fragment">
+                                Long lines are just hard to read!<br>
+                                <i class="fragment">Typography: 45-90 characters on a line</i>
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h4>Long line</h4>
+
+                        <pre><code class="javascript">
+this.document.deserialize(loadedPlugins, docData['state'], changesCallback, docData['action_history_length'], docData['id'], docData['next_connection_id'], docData['creator_id'], function() {...});
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h4>Long line (fixed)</h4>
+
+                        <pre><code class="javascript">
+this.document.deserialize(
+    loadedPlugins,
+    docData['state'],
+    changesCallback,
+    docData['action_history_length'],
+    docData['id'],
+    docData['next_connection_id'],
+    docData['creator_id'],
+    function() {...}
+});
+                        </code></pre>
+                    </section>
+                </section>
+
+                <section>
+                    <h2>Commenting</h2>
+                </section>
+
+                <section>
+                    <h3>Aspiration</h3>
+                    <p><strong>Write code that doesn't need comments</strong></p>
+                </section>
+
+                <section>
+                    <section>
+                        <h3>Comments love smelly code</h3>
+                    </section>
+
+                    <section>
+                        <h4>What does this do?</h4>
+
+                        <pre><code class="javascript">
+
+container.on('scroll', goog.functions.throttle(function(e) {
+    var b = this.body;
+    if(b.scrollHeight - (b.scrollTop + b.clientHeight) < 150) {
+        this.loadNextPage();
+    }
+}, 20, this))
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h4>What does this do?</h4>
+
+                        <pre><code class="javascript">
+// infinite scrolling
+container.on('scroll', goog.functions.throttle(function(e) {
+    var b = this.body;
+    if(b.scrollHeight - (b.scrollTop + b.clientHeight) < 150) {
+        this.loadNextPage();
+    }
+}, 20, this))
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h4>Comment obsolete</h4>
+
+                        <pre><code class="javascript">
+this.infiniteScrollHandler = goog.functions.throttle(function(e) {
+    var b = this.body;
+    if(b.scrollHeight - (b.scrollTop + b.clientHeight) < 150) {
+        this.loadNextPage();
+    }
+}, 20, this);
+
+container.on('scroll', this.infiniteScrollHandler);
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h4>Does the comment add knowledge?</h4>
+
+                        <pre><code class="javascript">
+//focus on email field
+$('#email').focus();
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h4>Have to do something weird</h4>
+
+                        <pre><code class="css">
+/* can't group selectors with placeholders for different browsers, won't work :( */
+::-webkit-input-placeholder {
+    color: grey;
+}
+::-moz-placeholder {
+    color: grey;
+}
+:-ms-input-placeholder {
+    color: grey;
+}
+::placeholder {
+    color: grey;
+}
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h4>Comments &rarr; log statements</h4>
+
+                        <pre><code class="scala">
+val (domainPolicyOpt, domain) = Registration.getDomainPolicy(email)
+domainPolicyOpt.flatMap { domainPolicy =>
+  // domain policy found - add new user to existing account
+  services.user.getDomainAccountId(domain).map { teamAccountId =>
+    ...
+  }
+}
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h4>Comments &rarr; log statements</h4>
+
+                        <pre><code class="scala">
+val (domainPolicyOpt, domain) = Registration.getDomainPolicy(email)
+domainPolicyOpt.flatMap { domainPolicy =>
+  logger.debug(s"Domain policy found for $domain. Adding user to existing account")
+  services.user.getDomainAccountId(domain).map { teamAccountId =>
+    ...
+  }
+}
+                        </code></pre>
+                    </section>
+                </section>
+
+                <section>
+                    <h2>Naming things</h2>
+                </section>
+
+                <section>
+                    <section>
+                        <h3>Avoiding ambiguity</h3>
+                    </section>
+
+                    <section>
+                        <h4>What does this do?</h4>
+
+                        <pre><code class="scala">
+teamUserProvisioner.processLogin(
+    newUser,
+    "free",
+    productAccount
+)
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h4>Generic verbs</h4>
+
+                        <ul>
+                            <li><span class="bad">check</span></li>
+                            <li><span class="bad">validate</span></li>
+                            <li><span class="bad">make</span></li>
+                            <li><span class="bad">get</span>/<span class="bad">set</span></li>
+                            <li><span class="bad">process</span></li>
+                            <li><span class="bad">start</span></li>
+                        </ul>
+                    </section>
+
+
+                    <section>
+                        <h4>Some alternatives</h4>
+
+                        <table>
+                            <tr>
+                                <td><span class="bad">validateForm</span></td>
+                                <td>
+                                    <span class="good">getErrors</span>,
+                                    <span class="good">isValid</span>,
+                                    <span class="good">bindFromRequest</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="bad">getToken</span></td>
+                                <td>
+                                    <span class="good">getToken</span>,
+                                    <span class="good">createToken</span>,
+                                    <span class="good">generateToken</span>,
+                                    <span class="good">fetchToken</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="bad">checkRestrictedPlugins</span></td>
+                                <td><span class="good">alertIfRestrictedPlugins</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="bad">processLogin</span></td>
+                                <td><span class="good">runPostRegistrationActions</span></td>
+                            </tr>
+                        </table>
+                    </section>
+
+                    <section>
+                        <h4>Can’t come up with a verb?</h4>
+
+                        <p><strong>Maybe your method is doing too much!</strong></p>
+                    </section>
+
+                    <section>
+                        <h4>Consistency matters!</h4>
+
+                        <blockquote>
+                            All code in any code-base should look like a single person typed it, no matter how many people contributed.
+                            <footer>
+                                &mdash;
+                                <cite>
+                                    <a href="https://github.com/rwaldron/idiomatic.js/" target="_blank">idiomatic.js</a>
+                                </cite>
+                            </footer>
+                        </blockquote>
+                    </section>
+                </section>
+
+                <section>
+                    <h2>Using booleans</h2>
+                </section>
+
+                <section>
+                    <section>
+                    <h3>Naming booleans</h3>
+                    </section>
+
+                    <section>
+                        <h4>What does this do?</h4>
+
+                        <pre><code class="javascript">
+
+function showOneDriveImport() {...}
+
+                        </code></pre>
+
+                        <pre class="fragment"><code class="javascript">
+function showOneDriveImport() {
+    var maybeFeature = this.optfeatures.getFeature('oneDriveImageImport');
+    return !!maybeFeature && maybeFeature.isEnabled();
+}
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h4>Communicate truth</h4>
+
+                        <p>It should be obvious that the value is a boolean</p>
+
+                        <ul class="fragment">
+                            <li>shouldShowOneDriveImport</li>
+                            <li>isEmpty</li>
+                            <li>canCreateDocuments</li>
+                            <li>hasLicense</li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h3>The boolean trap</h3>
+                    </section>
+
+                    <section>
+                        <h4>What does this do?</h4>
+
+                        <pre><code class="javascript">
+
+page.getSVG(dpi, true, false)
+
+                        </code></pre>
+
+                    </section>
+
+                    <section>
+                        <h4>Deobfuscate boolean parameters</h4>
+
+                        <pre><code class="javascript">
+page.getSVG({
+    imageDpi: dpi,
+    includePageBackground: true,
+    compress: false
+})
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h4>Deobfuscate boolean parameters</h4>
+
+                        <pre><code class="javascript">
+page.getSVG(
+    /* imageDpi */              dpi,
+    /* includePageBackground */ true,
+    /* compress */              false
+)
+                        </code></pre>
+                    </section>
+                </section>
+
+                <section>
+                    <h2>Don't play code golf</h2>
+
+                    <img src="img/golf.jpg" alt="Golfer at dusk">
+                </section>
+
+                <section>
+                    <h2>How to improve</h2>
+                </section>
+
+                <section>
+                    <a href="http://shop.oreilly.com/product/9780596802301.do" target="_blank">
+                        <img src="img/artofcode_cover.jpg" alt="The Art of Readable Code (book cover)" style="max-width: 50%;">
+                    </a>
+                </section>
+                <section>
+                    <h2>Practicing readability</h2>
+                    <ul>
+                        <li>Code reviews: ask for feedback</li>
+                        <li>Code reviews: give feedback</li>
+                        <li><a href="http://exercism.io/" target="_blank">exercism.io</a></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>More resources</h2>
+
+                    <ul>
+                        <li>
+                            <a href="https://github.com/rwaldron/idiomatic.js" target="_blank">idiomatic.js</a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/necolas/idiomatic-css" target="_blank">idiomatic-css</a>
+                        </li>
+                        <li>
+                            <a href="https://www.lucidchart.com/techblog/2016/05/18/who-the-heck-wrote-this-3-ways-to-deal-with-bad-code/">Who the Heck Wrote This? 3 Ways to Deal with Bad Code</a>
+                        </li>
+                        <li>
+                            <a href="http://rdingwall.com/2008/05/31/is-the-80-character-line-limit-still-relevant/">Is the 80 character line limit still relevant?</a>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Thanks!</h2>
+
+                    <ul style="list-style-type: none;">
+                        <li><a href="https://twitter.com/dpashkevich">@dpashkevich</a>
+                        <li><a href="http://dpashkevich.github.io/pres-readable-code/">http://dpashkevich.github.io/pres-readable-code/</a></li>
+                        <li><a href="https://www.golucid.co/" target="_blank">www.golucid.co</a></li>
+                    </ul>
+                </section>
+
+            </div>
+
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'none', // default/cube/page/concave/zoom/linear/fade/none
+
+                maxScale: 1.4,
+
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+                ]
+            });
+
+        </script>
+
+    </body>
+</html>
