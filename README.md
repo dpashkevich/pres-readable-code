@@ -1,7 +1,7 @@
-# Effective ways of enforcing coding standards
+# Writing readable code
 
-Slides for a talk that explores the main challenges in adopting coding standards and suggests effective ways of solving them.
-http://dpashkevich.github.io/pres-enforcingstandards/
+Slides for my presentation on writing readable code.
+http://dpashkevich.github.io/pres-readable-code/
 
 # Author
 
